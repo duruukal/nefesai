@@ -64,7 +64,7 @@ class NefesAIChatActivity : AppCompatActivity() {
         modelPath = intent.getStringExtra(EXTRA_MODEL_PATH) ?: ""
 
         if (modelPath.isBlank()) {
-            modelPath = applicationContext.filesDir.absolutePath + "/llama_model.gguf"
+            modelPath = applicationContext.filesDir.absolutePath + "/nefes.gguf"
             Log.w(TAG, "⚠️ model_path boş geldi, varsayılan yol deniniyor: $modelPath")
         }
 

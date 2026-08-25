@@ -8,10 +8,6 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import tr.gov.ibb.nefesai.DavinciDownloadActivity
-import tr.gov.ibb.nefesai.ModelRegistry
-import tr.gov.ibb.nefesai.NefesAIChatActivity
-import tr.gov.ibb.nefesai.NefesConstants
 import java.io.File
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -22,7 +18,7 @@ class NefesAI private constructor() {
 
     companion object {
         val shared = NefesAI()
-        private const val TAG = "Davinci"
+        private const val TAG = "NefesAI"
     }
 
     private var isBusy = false
@@ -40,7 +36,6 @@ class NefesAI private constructor() {
             Log.i(TAG, "[NEFESAI] Cihazın Raporladığı Fiziksel Bellek: ${physicalMemory.toDouble() / (1024 * 1024 * 1024)} GB")
             physicalMemory >= safeThresholdInBytes
         } catch (e: Exception) {
-            // Buradaki hatayı mutlaka detaylı görmek için e.printStackTrace() ekle veya e'yi logla
             Log.e(TAG, "Cihaz bellek kontrolü yapılamadı!", e)
             true
         }
@@ -56,7 +51,7 @@ class NefesAI private constructor() {
         }
 
         if (isBusy) {
-            Log.w(TAG, "⚠️ [Davinci] start() zaten çalışıyor, tekrar çağrı engellendi.")
+            Log.w(TAG, "⚠️ [NefesAI] start() zaten çalışıyor, tekrar çağrı engellendi.")
             return
         }
         isBusy = true
@@ -65,7 +60,7 @@ class NefesAI private constructor() {
 
         val filesDir = context.filesDir
         if (filesDir == null) {
-            Log.e(TAG, "❌ [Davinci] Documents dizinine erişilemedi.")
+            Log.e(TAG, "❌ [NefesAI] Dosya dizinine erişilemedi.")
             return
         }
 
@@ -80,7 +75,6 @@ class NefesAI private constructor() {
         }
 
         // MARK: - 2. Senaryo: Model Yerelde Var (Güncellik Kontrolü)
-        // Harici kütüphane olmadan arka planda çalıştırmak için standart Java Thread'i başlatıyoruz
         thread(start = true) {
             var connection: HttpURLConnection? = null
             try {
@@ -93,7 +87,7 @@ class NefesAI private constructor() {
                 val statusCode = connection.responseCode
 
                 if (statusCode != HttpURLConnection.HTTP_OK) {
-                    Log.w(TAG, "⚠️ [Davinci] Geçersiz Sunucu Yanıtı! Status: $statusCode. Çevrimdışı Mod.")
+                    Log.w(TAG, "⚠️ [NefesAI] Geçersiz Sunucu Yanıtı! Status: $statusCode. Çevrimdışı Mod.")
                     fallbackToLocalChat(context, modelFile)
                     return@thread
                 }
@@ -102,7 +96,7 @@ class NefesAI private constructor() {
                 val minimumValidModelSize: Long = 100 * 1024 * 1024 // 100 MB
 
                 if (serverFileSize < minimumValidModelSize) {
-                    Log.w(TAG, "⚠️ [Davinci] Boyut çok küçük: $serverFileSize bytes. Yerel model korundu.")
+                    Log.w(TAG, "⚠️ [NefesAI] Boyut çok küçük: $serverFileSize bytes. Yerel model korundu.")
                     fallbackToLocalChat(context, modelFile)
                     return@thread
                 }
@@ -123,7 +117,7 @@ class NefesAI private constructor() {
                 }
 
             } catch (e: IOException) {
-                Log.w(TAG, "⚠️ [Davinci] Sunucuya erişilemedi. Çevrimdışı Mod")
+                Log.w(TAG, "⚠️ [NefesAI] Sunucuya erişilemedi. Çevrimdışı Mod")
                 fallbackToLocalChat(context, modelFile)
             } finally {
                 connection?.disconnect()
@@ -163,7 +157,6 @@ class NefesAI private constructor() {
 
         context.runOnUiThread {
             try {
-
                 AlertDialog.Builder(context)
                     .setTitle("Cihaz Uyumluluğu")
                     .setMessage("Üzgünüz, NefesAI yapay zeka modeli yüksek performans gerektirdiği için minimum 4 GB RAM'e sahip cihazları desteklemektedir.")

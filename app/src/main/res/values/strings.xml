@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Nefes AI</string>
+    <string name="offline_badge">● ÇEVRİMDİŞİ ÇALIŞIR</string>
+    <string name="send_button_symbol">➤</string>
+    <string name="chat_hint">Yaz, cevap al...</string>
 </resources>

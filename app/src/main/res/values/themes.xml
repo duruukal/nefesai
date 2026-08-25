@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <style name="Theme.MyApplication" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Özelleştirmelerin -->
+        <!-- Uygulama genel renk entegrasyonu -->
+        <item name="colorPrimary">@color/mint_background</item>
+        <item name="colorPrimaryDark">@color/dark_fume</item>
+        <item name="colorAccent">@color/user_bubble</item>
     </style>
-
 </resources>
