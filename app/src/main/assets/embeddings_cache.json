@@ -1,0 +1,18 @@
+{
+  "deprem_aninda": {
+    "content": "Deprem anında kapalı alandaysanız kesinlikle balkona çıkmayın, merdivenlere yönelmeyin ve asansör kullanmayın. Sağlam bir eşyanın yanına çömelin, başınızı ve boynunuzu ellerinizle koruyarak Çök-Kapan-Tutun hareketini yapın.",
+    "keywords": ["deprem", "sarsıntı", "çök", "kapan", "tutun", "asansör"]
+  },
+  "deprem_sonrasi": {
+    "content": "Deprem sonrasında binayı sakin bir şekilde merdivenlerden terk edin. Doğalgaz ve su vanalarını kapatın, elektrik şalterini indirin. Hasarlı binalara kesinlikle girmeyin ve açık alanlardaki güvenli toplanma bölgelerine gidin.",
+    "keywords": ["deprem", "sonrası", "binadan", "gaz", "toplanma", "alanı"]
+  },
+  "yangin": {
+    "content": "Yangın durumunda duman solumamak için eğilerek veya sürünerek hareket edin. Kapıyı açmadan önce sıcaklığını kontrol edin; sıcaksa açmayın. Giysiniz tutuşursa koşmayın, yere yatıp yuvarlanarak söndürün.",
+    "keywords": ["yangın", "duman", "nefes", "alev", "söndür"]
+  },
+  "gaz_kacagi": {
+    "content": "Ortamda gaz kokusu alırsanız kibrit veya çakmak yakmayın, elektrik anahtarlarına dokunmayın. Pencereleri açarak ortamı havalandırın, binayı derhal terk edin ve dışarıdan 112'yi arayın.",
+    "keywords": ["gaz", "kokusu", "kaçak", "çakmak", "elektrik"]
+  }
+}
