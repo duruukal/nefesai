@@ -65,10 +65,10 @@ class LlamaInferenceEngine private constructor(context: Context) {
 
     data class GenerationParams(
         val temperature: Float = 0.15f,
-        val maxTokens: Int = 256,
+        val maxTokens: Int = 128,
         val topP: Float = 0.85f,
         val topK: Int = 20,
-        val repeatPenalty: Float = 1.15f,
+        val repeatPenalty: Float = 1.25f,
         val contextLength: Int = 2048,
         // numThreads artık yalnızca bilgi amaçlı — helper n_threads=0 ile llama.cpp'e bırakıyor
         val numThreads: Int = Runtime.getRuntime().availableProcessors().coerceIn(4, 8),

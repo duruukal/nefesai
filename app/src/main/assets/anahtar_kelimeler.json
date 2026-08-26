@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "kategori": "Deprem Anı ve Sarsıntı",
+    "anahtar_kelimeler": ["deprem", "sallanıyor", "sallandık", "sarsıntı", "çök", "kapan", "tutun", "deprem oluyor"],
+    "icerik": "ACİL DURUM YÖNERGESİ: Sakin olun. Sağlam bir masa, sıra veya dolap yanına geçerek çömelin, başınızı ve boynunuzu ellerinizle koruyun ve eşyaya tutunarak hayat üçgeni oluşturun. Asla balkona, pencerelere ve merdivenlere koşmayın."
+  },
+  {
+    "id": 2,
+    "kategori": "Yaralanma, Kanama ve Ezilme",
+    "anahtar_kelimeler": ["yaralandım", "yara", "kanama", "kesik", "kan", "darbe", "ezilme", "bıçak", "kolum kanıyor", "kesti", "kanıyor", "ezildi"],
+    "icerik": "ACİL DURUM YÖNERGESİ: Paniğe kapılmayın. Varsa yara veya kanama bölgesinin üzerine temiz bir bez ya da kıyafet parçasıyla doğrudan baskı uygulayın. Yaralı uzuvları hareket ettirmeyin, sabit tutun. Ekiplere bildirim yapmaya çalışın."
+  },
+  {
+    "id": 3,
+    "kategori": "Enkaz Altında Sıkışma",
+    "anahtar_kelimeler": ["enkaz", "göçük", "altında", "sıkıştım", "karanlıkta kaldım", "duvar çöktü", "sesimi duyan var mı", "kaldım", "altında kaldım"],
+    "icerik": "ACİL DURUM YÖNERGESİ: Sakin olun ve nefesinizi kontrollü tüketin. Toz solumamak için ağzınızı ve burnunuzu kıyafetinizle kapatın. Sürekli bağırarak enerji harcamayın; bunun yerine bir demir boruya veya duvara vurarak ritmik ses çıkarın."
+  },
+  {
+    "id": 4,
+    "kategori": "Deprem Sonrası Tahliye",
+    "anahtar_kelimeler": ["sarsıntı bitti", "bina dışı", "çıkabilir miyim", "artçı", "hasarlı bina", "tahliye", "çıkıyom"],
+    "icerik": "ACİL DURUM YÖNERGESİ: Sarsıntı tamamen durduktan sonra etrafınızı kontrol edin. Elektrik ve gaz vanalarını kapatma imkanınız varsa kapatıp binayı sakin şekilde terk edin. Asla asansör kullanmayın, merdivenlerden inip açık alanlara gidin."
+  },
+  {
+    "id": 5,
+    "kategori": "Artçı Sarsıntılar",
+    "anahtar_kelimeler": ["artçı", "tekrar sallandı", "yine sallanıyor", "ikinci deprem", "sallantı tekrar"],
+    "icerik": "ACİL DURUM YÖNERGESİ: Artçı sarsıntılar hasarlı binaları yıkabilir. İçerideyseniz hemen tekrar çök-kapan-tutun pozisyonu alın. Dışarıdaysanız binalardan, direklerden ve köprülerden uzak açık alanlarda kalın."
+  },
+  {
+    "id": 6,
+    "kategori": "Gaz ve Su Sızıntısı",
+    "anahtar_kelimeler": ["gaz kokusu", "tüp kaçırıyor", "doğalgaz kokuyor", "su patladı", "boru patladı"],
+    "icerik": "ACİL DURUM YÖNERGESİ: Kesinlikle kibrit, çakmak veya elektrik düğmelerini yakmayın/açmayın. Pencereleri açarak ortamı havalandırın, ana vanalardan gazı ve suyu kapatıp binayı terk edin."
+  },
+  {
+    "id": 7,
+    "kategori": "Toplanma Alanı ve İletişim",
+    "anahtar_kelimeler": ["toplanma alanı", "nereye gideyim", "ailemi bulamıyorum", "telefon çekmiyor", "internet yok", "hatlar kesik"],
+    "icerik": "ACİL DURUM YÖNERGESİ: En yakın güvenli toplanma alanına yürüyerek gidin. Şebekeleri meşgul etmemek için aramalar yerine SMS veya internet tabanlı mesajlaşma uygulamalarını kullanın."
+  }
+]

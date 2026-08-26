@@ -5,9 +5,11 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.view.View
 import android.view.Gravity
 import android.widget.Button
-import android.widget.LinearLayout
+import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -17,50 +19,83 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Kök layout - Mint Yeşili Arka Plan
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            setPadding(dpToPx(24), dpToPx(24), dpToPx(24), dpToPx(24))
-            setBackgroundColor(Color.parseColor("#99C7B6"))
+        val rootLayout = RelativeLayout(this).apply {
+            layoutParams = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT
+            )
+            setBackgroundColor(Color.parseColor("#090D10"))
         }
 
-        // Uygulama Başlığı
+        // 1. KATMAN: Arka Plan Filigranı (Siyah boşluk yok, tam ekran)
+        val backgroundWatermark = ImageView(this).apply {
+            setImageResource(R.drawable.nefeslogo)
+            scaleType = ImageView.ScaleType.CENTER_CROP
+            alpha = 0.22f
+            layoutParams = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT
+            )
+        }
+        rootLayout.addView(backgroundWatermark)
+
+        // 2. KATMAN: Başlık (Bir tık daha yukarı alındı)
         val titleText = TextView(this).apply {
-            text = "Nefes AI"
-            textSize = 28f
+            id = View.generateViewId()
+            text = "Nefes-AI"
+            textSize = 34f
             typeface = Typeface.DEFAULT_BOLD
-            setTextColor(Color.parseColor("#1C2128"))
+            setTextColor(Color.parseColor("#A3E4D7"))
             gravity = Gravity.CENTER
-            setPadding(0, 0, 0, dpToPx(8))
+            layoutParams = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                addRule(RelativeLayout.CENTER_HORIZONTAL)
+                setMargins(0, dpToPx(28), 0, dpToPx(6)) // Nokta atışı üst boşluk
+            }
         }
-        root.addView(titleText)
+        rootLayout.addView(titleText)
 
-        // Alt Açıklama
+        // 3. KATMAN: Alt Açıklama Metni (Başlığın hemen altında)
         val subtitleText = TextView(this).apply {
-            text = "Çevrimdışı Deprem ve Acil Durum Asistanı"
-            textSize = 14f
-            setTextColor(Color.parseColor("#25332E"))
+            id = View.generateViewId()
+            text = "Nefes-AI, mobil cihazda tamamen offline çalışan bir acil durum asistanı. Temel amacı afet senaryolarında hayat kurtaran rehberlik sağlamak."
+            textSize = 13f
+            setTextColor(Color.parseColor("#8EAFA6"))
             gravity = Gravity.CENTER
-            setPadding(0, 0, 0, dpToPx(32))
+            layoutParams = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                addRule(RelativeLayout.CENTER_HORIZONTAL)
+                addRule(RelativeLayout.BELOW, titleText.id)
+                setMargins(dpToPx(32), 0, dpToPx(32), 0)
+            }
         }
-        root.addView(subtitleText)
+        rootLayout.addView(subtitleText)
 
-        // Asistanı Başlat Butonu
+        // 4. KATMAN: Başlat Butonu (Ellerin hemen altında sabit)
         val startButton = Button(this, null, android.R.attr.borderlessButtonStyle).apply {
-            text = "Asistanı Başlat"
-            textSize = 16f
+            text = "NEFES-AI BAŞLAT"
+            textSize = 15f
             typeface = Typeface.DEFAULT_BOLD
-            setTextColor(Color.parseColor("#FFFFFF"))
+            setTextColor(Color.parseColor("#090D10"))
 
-            // Koyu Füme Arka Plan ve Yuvarlatılmış Köşeler
             background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                cornerRadius = dpToPx(24).toFloat()
-                setColor(Color.parseColor("#1E242B"))
+                cornerRadius = dpToPx(30).toFloat()
+                setColor(Color.parseColor("#A3E4D7"))
             }
 
-            setPadding(dpToPx(24), dpToPx(16), dpToPx(24), dpToPx(16))
+            layoutParams = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                dpToPx(56)
+            ).apply {
+                addRule(RelativeLayout.CENTER_HORIZONTAL)
+                addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+                setMargins(dpToPx(32), 0, dpToPx(32), dpToPx(90))
+            }
 
             setOnClickListener {
                 try {
@@ -71,9 +106,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        root.addView(startButton)
+        rootLayout.addView(startButton)
 
-        setContentView(root)
+        setContentView(rootLayout)
     }
 
     private fun dpToPx(dp: Int): Int {

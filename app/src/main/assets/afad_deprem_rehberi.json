@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "topic": "deprem_oncesi_hazirlik",
+    "title": "Afet ve Acil Durum Çantası Hazırlığı",
+    "content": "Acil durum çantasında şunlar mutlaka bulunmalıdır: Su, bozulmayan kuru gıdalar, ilk yardım malzemeleri, el feneri, yedek piller, düdük, çok amaçlı çakı, hijyen malzemeleri, ıslak mendil, battaniye ve önemli evrakların fotokopileri. Çanta kolay ulaşılabilir bir yerde saklanmalıdır."
+  },
+  {
+    "id": 2,
+    "topic": "deprem_oncesi_ev_guvenligi",
+    "title": "Eşyaların Sabitlenmesi",
+    "content": "Ev içerisindeki ağır ve devrilebilecek dolaplar, kitaplıklar, beyaz eşyalar ve vitrinler duvara sabitlenmelidir. Yatakların üzerine ağır tablolar, aynalar veya cam cisimler asılmamalıdır."
+  },
+  {
+    "id": 3,
+    "topic": "deprem_ani_bina_ici",
+    "title": "Bina İçindeyken Çök - Kapan - Tutun Hareketi",
+    "content": "Paniğe kapılmayın. Koşmayın, balkona, pencerelere ve merdivenlere yaklaşmayın. Asla asansör kullanmayın. Sağlam bir masa, sıra veya koltuğun yanına geçerek diz üstü çökmeli, başınızı ve boynunuzu ellerinizle koruyup (Kapan) sağlam bir yere tutunmalısınız."
+  },
+  {
+    "id": 4,
+    "topic": "deprem_ani_acik_alan",
+    "title": "Açık Alanda Bulunurken Yapılacaklar",
+    "content": "Binalardan, elektrik direklerinden, enerji nakil hatlarından, köprülerden ve alt geçitlerden uzaklaşın. Açık ve geniş bir alana çıkarak çömelin veya yere oturun. Dağlık ve heyelan riski olan yamaçlardan hızla uzak durun."
+  },
+  {
+    "id": 5,
+    "topic": "deprem_ani_arac",
+    "title": "Araç İçindeyken Deprem Anı",
+    "content": "Trafik akışına engel olmayacak şekilde aracı sağa yanaştırıp durdurun. Kontak açık bırakılabilir ancak anahtar üzerinde kalmalıdır. Üst geçitler, viyadükler ve tünellerin altında iseniz buralardan uzaklaşın ve sarsıntı bitene kadar araç içinde kalın."
+  },
+  {
+    "id": 6,
+    "topic": "deprem_sonrasi_tahliye",
+    "title": "Deprem Sonrası Sakin Tahliye",
+    "content": "Sarsıntı durduktan sonra kendi güvenliğinizi kontrol edin. Binayı sakin bir şekilde terk edin, asla asansörleri kullanmayın, merdivenleri tercih edin. Doğalgaz, su ve elektrik vanalarını kapalı konumdaysa kurcalamayın."
+  },
+  {
+    "id": 7,
+    "topic": "deprem_sonrasi_gaz_ve_ates",
+    "title": "Gaz Kaçağı ve Yangın Tehlikesi",
+    "content": "Gaz kokusu aldığınızda asla kibrit veya çakmak yakmayın, elektrik düğmelerine dokunmayın. Pencereleri ve kapıları açarak ortamı havalandırın, binayı derhal terk edin."
+  },
+  {
+    "id": 8,
+    "topic": "enkaz_altinda_panik_ve_nefes",
+    "title": "Enkaz Altında Sakin Kalma ve Nefes Kontrolü",
+    "content": "Derin panik ve korku solunum hızını artırır, bu da sınırlı oksijeni hızla tüketir. Kesinlikle derin ve sakin nefesler alın. Enerjinizi ve oksijeninizi tasarruflu kullanın, boş yere çırpınmayın."
+  },
+  {
+    "id": 9,
+    "topic": "enkaz_altinda_toz_korunma",
+    "title": "Toz ve Solunum Yolu Koruması",
+    "content": "Enkaz altındaki yoğun beton ve moloz tozunu solumamak için ağzınızı ve burnunuzu kıyafetinizin kumaşıyla sıkıca kapatın. Gereksiz yere konuşarak toz yutmaktan kaçının."
+  },
+  {
+    "id": 10,
+    "topic": "enkaz_altinda_ses_cikarma",
+    "title": "Kurtarma Ekiplerine Ses Duyurma (Borulara Vurma)",
+    "content": "Boşuna ve sürekli bağırmak ses tellerini ve enerjiyi tükörür. Dışarıdan ses veya ayak sesi duyduğunuzda bağırmak yerine elinize geçen metal bir boruya, duvara veya sert bir cisme düzenli aralıklarla vurarak ses çıkarın (borular sesi çok iyi iletir)."
+  },
+  {
+    "id": 11,
+    "topic": "enkaz_altinda_hareket_kısıtı",
+    "title": "Vücut Pozisyonu ve Sıkışma Durumu",
+    "content": "Üzerinizdeki ağırlıkları iterken ani, zorlayıcı ve panik hareketler yapmayın; bu durum yeni çöküntülere yol açabilir. Olduğunuz pozisyonu koruyun, kollarınızı başınızı koruyacak şekilde bükülü tutun."
+  },
+  {
+    "id": 12,
+    "topic": "enkaz_altinda_su_ve_besin",
+    "title": "Su ve Enerji Tasarrufu",
+    "content": "Vücudunuz günlerce susuzluğa dayanabilir, bu yüzden paniğe kapılmadan kurtarma ekiplerine odaklanın. İdrarınızı tutmaya çalışın, ağzınıza gelebilecek yabancı maddeleri yutmayın."
+  },
+  {
+    "id": 13,
+    "topic": "iletisim_ve_toplanma",
+    "title": "Toplanma Alanları ve İletişim Kuralları",
+    "content": "Tahliye sonrasında en yakın güvenli toplanma alanına gidin. Acil durumlar haricinde GSM araması yapmayın, şebekeleri kilitlememek için mesajlaşma uygulamalarını veya SMS'i kullanın. Acil yardım için 112'yi arayın."
+  },
+  {
+    "id": 14,
+    "topic": "ilk_yardim_kanama",
+    "title": "İlk Yardım - Ağır Kanamayı Durdurma",
+    "content": "Eğer açık bir kanama varsa, temiz bir bez veya kıyafet parçası ile yaranın üzerine doğrudan baskı uygulayın. Mümkünse kanayan bölgeyi kalp seviyesinin yukarısına kaldırın."
+  }
+]

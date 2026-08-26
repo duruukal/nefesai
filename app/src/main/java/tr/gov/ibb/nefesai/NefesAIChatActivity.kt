@@ -5,7 +5,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
-import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -40,7 +39,6 @@ class NefesAIChatActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_MODEL_PATH = "model_path"
         private const val TAG = "NefesAIChatActivity"
-        private const val UI_UPDATE_THROTTLE_MS = 100L
     }
 
     private lateinit var modelPath: String
@@ -50,7 +48,6 @@ class NefesAIChatActivity : AppCompatActivity() {
     private lateinit var inputField: EditText
     private lateinit var sendButton: Button
     private lateinit var bottomContainer: LinearLayout
-    private lateinit var quickActionContainer: LinearLayout
     private lateinit var disclaimerLabel: TextView
 
     private val activityScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -58,21 +55,15 @@ class NefesAIChatActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // RAG tamamen kaldırıldı
         modelPath = intent.getStringExtra(EXTRA_MODEL_PATH) ?: ""
 
         if (modelPath.isBlank()) {
             modelPath = applicationContext.filesDir.absolutePath + "/nefes.gguf"
-            Log.w(TAG, "⚠️ model_path boş geldi, varsayılan yol deniniyor: $modelPath")
         }
 
         SystemManager.shared.initialize(this)
-
         setupUI()
-
-        // Karşılama mesajını ve arayüzü doğrudan görünür başlatıyoruz
-        startConversation()
-
-        // Modeli arka planda yükleyip hazır hale getiriyoruz
         initializeAndLoadLlamaModel()
     }
 
@@ -87,38 +78,19 @@ class NefesAIChatActivity : AppCompatActivity() {
     }
 
     private fun initializeAndLoadLlamaModel() {
-        sendButton.isEnabled = false
-
+        sendButton.isEnabled = true
         activityScope.launch(Dispatchers.Default) {
             try {
                 val engine = LlamaInferenceEngine.getInstance(this@NefesAIChatActivity)
                 engine.loadModel(modelPath)
-                Log.i(TAG, "🔥 Model yüklendi, warm-up başlatılıyor...")
-
-                val warmUpText = "Merhaba"
-                val decision = SystemManager.shared.prepareResponse(warmUpText)
-
-                if (decision is ChatDecision.Generate) {
-                    val purePrompt = decision.prompt
-                    val responseBuilder = StringBuilder()
-                    engine.sendUserPrompt(pureFormattedPrompt = purePrompt).collect { token ->
-                        responseBuilder.append(token)
-                    }
-                    Log.i(TAG, "✅ [WARM-UP DONE]")
-                }
+                Log.i(TAG, "🔥 Model yüklendi ve hazır!")
             } catch (e: Exception) {
-                Log.e(TAG, "Warm-up sırasında hata oluştu", e)
+                Log.e(TAG, "Model yüklenirken hata", e)
             } finally {
                 withContext(Dispatchers.Main) {
                     sendButton.isEnabled = true
                 }
             }
-        }
-    }
-
-    private fun startConversation() {
-        if (messages.isEmpty()) {
-            appendMessage("Nefes AI", "Merhaba, ben Nefes AI. Tamamen offline çalışan bir acil durum asistanıyım. Temel amaç afet senaryolarında hayat kurtarıcı rehberlik sağlamak.")
         }
     }
 
@@ -130,54 +102,42 @@ class NefesAIChatActivity : AppCompatActivity() {
         sendButton.isEnabled = false
 
         appendMessage("Siz", text)
-        appendMessage("Nefes AI", "...")
+        appendMessage("Nefes AI", "Nefes AI düşünüyor...")
         val targetIndex = messages.size - 1
 
         activityScope.launch(Dispatchers.Default) {
             try {
-                val decision = SystemManager.shared.prepareResponse(text)
+                // Etiket, açıklama ve rol tanımını tamamen atıyoruz.
+                // Doğrudan cümle tamamlama mantığına zorluyoruz.
+                val purePrompt = "Acil durum için ilk yardım: $text ->"
 
-                when (decision) {
-                    is ChatDecision.ShowSelectionOptions -> {
-                        withContext(Dispatchers.Main) {
-                            updateMessage(targetIndex, decision.message, isFinal = true)
-                        }
-                        return@launch
-                    }
-                    is ChatDecision.DirectResponse -> {
-                        withContext(Dispatchers.Main) {
-                            updateMessage(targetIndex, decision.message, isFinal = true)
-                        }
-                        return@launch
-                    }
-                    is ChatDecision.Generate -> {
-                        val purePrompt = decision.prompt
-                        val responseBuilder = StringBuilder()
-                        var lastUiUpdate = 0L
+                val responseBuilder = StringBuilder()
+                val engine = LlamaInferenceEngine.getInstance(context = this@NefesAIChatActivity)
 
-                        val engine = LlamaInferenceEngine.getInstance(context = this@NefesAIChatActivity)
-
-                        engine.sendUserPrompt(pureFormattedPrompt = purePrompt).collect { token ->
-                            responseBuilder.append(token)
-                            val now = System.currentTimeMillis()
-                            if (now - lastUiUpdate >= UI_UPDATE_THROTTLE_MS) {
-                                lastUiUpdate = now
-                                val snapshot = responseBuilder.toString()
-                                withContext(Dispatchers.Main) {
-                                    updateMessage(targetIndex, snapshot, isFinal = false)
-                                }
-                            }
-                        }
-
-                        val finalText = responseBuilder.toString()
-                        withContext(Dispatchers.Main) {
-                            updateMessage(targetIndex, finalText, isFinal = true)
-                        }
+                engine.sendUserPrompt(pureFormattedPrompt = purePrompt).collect { token ->
+                    responseBuilder.append(token)
+                    val snapshot = responseBuilder.toString()
+                    withContext(Dispatchers.Main) {
+                        updateMessage(targetIndex, snapshot, isFinal = false)
                     }
                 }
-            } catch (e: Exception) {
+
+                val finalText = responseBuilder.toString().trim()
+
+                val resolvedText = if (finalText.length < 3 || finalText.contains("Kapasite")) {
+                    "Lütfen sakin olun, güvenli bir alana geçin ve 112'yi arayın."
+                } else {
+                    finalText
+                }
+
                 withContext(Dispatchers.Main) {
-                    updateMessage(targetIndex, "Bir hata oluştu: ${e.localizedMessage}", isFinal = true)
+                    updateMessage(targetIndex, resolvedText, isFinal = true)
+                }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Model yanıt üretirken hata", e)
+                withContext(Dispatchers.Main) {
+                    updateMessage(targetIndex, "Acil durumda lütfen 112'yi arayın.", isFinal = true)
                 }
             } finally {
                 withContext(Dispatchers.Main) {
@@ -196,7 +156,7 @@ class NefesAIChatActivity : AppCompatActivity() {
     private fun updateMessage(index: Int, text: String, isFinal: Boolean) {
         if (index >= messages.size) return
         messages[index].text = text
-        adapter.fastUpdate(recyclerView, index)
+        adapter.notifyItemChanged(index)
 
         if (isFinal || !recyclerView.canScrollVertically(1)) {
             recyclerView.scrollToPosition(messages.size - 1)
@@ -209,13 +169,12 @@ class NefesAIChatActivity : AppCompatActivity() {
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT
             )
-            setBackgroundColor(Color.parseColor("#93B8A3"))
+            setBackgroundColor(Color.parseColor("#7FA39A"))
         }
 
-        // 1. KATMAN: Arka Plan Tam Ekran Filigran Logo
         val watermarkImageView = ImageView(this).apply {
-            setImageResource(R.drawable.nefes_logo)
-            alpha = 0.10f
+            setImageResource(R.drawable.nefeslogo)
+            alpha = 0.15f
             scaleType = ImageView.ScaleType.CENTER_CROP
             layoutParams = RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT,
@@ -224,21 +183,17 @@ class NefesAIChatActivity : AppCompatActivity() {
         }
         root.addView(watermarkImageView)
 
-        // 2. KATMAN: Üst Bar / Header
         val topBar = LinearLayout(this).apply {
             id = View.generateViewId()
             orientation = LinearLayout.HORIZONTAL
-            setPadding(dpToPx(16), dpToPx(10), dpToPx(16), dpToPx(10))
+            setPadding(dpToPx(16), dpToPx(12), dpToPx(16), dpToPx(12))
             gravity = Gravity.CENTER_VERTICAL
-            setBackgroundColor(Color.parseColor("#1B2A22"))
+            setBackgroundColor(Color.parseColor("#173531"))
             layoutParams = RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT
             ).apply {
                 addRule(RelativeLayout.ALIGN_PARENT_TOP)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                elevation = dpToPx(4).toFloat()
             }
         }
 
@@ -250,11 +205,8 @@ class NefesAIChatActivity : AppCompatActivity() {
 
         val logoImageView = ImageView(this).apply {
             layoutParams = LinearLayout.LayoutParams(dpToPx(36), dpToPx(36))
-            setImageResource(R.drawable.nefes_logo)
+            setImageResource(R.drawable.nefeslogo)
             scaleType = ImageView.ScaleType.CENTER_CROP
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                clipToOutline = true
-            }
         }
 
         val titleTextView = TextView(this).apply {
@@ -262,9 +214,7 @@ class NefesAIChatActivity : AppCompatActivity() {
             textSize = 20f
             typeface = android.graphics.Typeface.DEFAULT_BOLD
             setTextColor(Color.parseColor("#FFFFFF"))
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                setMargins(dpToPx(10), 0, 0, 0)
-            }
+            setMarginsLeft(dpToPx(10))
         }
 
         headerLeftLayout.addView(logoImageView)
@@ -291,11 +241,9 @@ class NefesAIChatActivity : AppCompatActivity() {
         topBar.addView(statusLayout)
         root.addView(topBar)
 
-        // 3. KATMAN: Alt Alan (Hızlı Eylem Butonları, Giriş Çubuğu ve Uyarı)
         bottomContainer = LinearLayout(this).apply {
             id = View.generateViewId()
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.TRANSPARENT)
             layoutParams = RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT
@@ -304,119 +252,83 @@ class NefesAIChatActivity : AppCompatActivity() {
             }
         }
 
-        quickActionContainer = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.START
-            setPadding(dpToPx(12), dpToPx(4), dpToPx(12), dpToPx(4))
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-        }
-        val actions = listOf(
-            "Deprem anında ne yapmalıyım?",
-            "Depremden sonra ne yapmalıyım?",
-            "Gaz kokusu alıyorum",
-            "Yangın var",
-            "Acil çanta listesi",
-            "112'yi ara"
-        )
-
-        for (action in actions) {
-            val actionButton = TextView(this).apply {
-                text = action
-                textSize = 12f
-                isAllCaps = false
-                setTextColor(Color.parseColor("#1E242B"))
-                isClickable = true
-                isFocusable = true
-
-                background = GradientDrawable().apply {
-                    shape = GradientDrawable.RECTANGLE
-                    cornerRadius = dpToPx(16).toFloat()
-                    setColor(Color.parseColor("#EAF5F0"))
-                    setStroke(dpToPx(1), Color.parseColor("#B8D9CC"))
-                }
-
-                setPadding(dpToPx(12), dpToPx(6), dpToPx(12), dpToPx(6))
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    setMargins(0, 0, dpToPx(8), 0)
-                }
-
-                setOnClickListener {
-                    inputField.setText(action)
-                    handleSend()
-                }
-            }
-            quickActionContainer.addView(actionButton)
-        }
-        bottomContainer.addView(quickActionContainer)
-
-        // Oval Mesaj Giriş Çubuğu
-        val inputBar = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+        val inputBar = RelativeLayout(this).apply {
+            layoutParams = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                dpToPx(56)
             ).apply {
-                setMargins(dpToPx(16), dpToPx(4), dpToPx(16), dpToPx(4))
+                setMargins(dpToPx(16), dpToPx(8), dpToPx(16), dpToPx(8))
             }
             background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                cornerRadius = dpToPx(28).toFloat()
-                setColor(Color.parseColor("#F4F7F5"))
-                setStroke(dpToPx(1), Color.parseColor("#C5E2D5"))
+                cornerRadius = dpToPx(30).toFloat()
+                setColor(Color.parseColor("#FFFFFF"))
+                setStroke(dpToPx(1), Color.parseColor("#A3C1B8"))
             }
-            setPadding(dpToPx(16), dpToPx(4), dpToPx(8), dpToPx(4))
         }
+
+        sendButton = Button(this, null, android.R.attr.borderlessButtonStyle).apply {
+            id = View.generateViewId()
+            text = "GÖNDER"
+            textSize = 13f
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+            setTextColor(Color.parseColor("#2F3E46"))
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = dpToPx(24).toFloat()
+                setColor(Color.parseColor("#A3C1B8"))
+            }
+            layoutParams = RelativeLayout.LayoutParams(
+                dpToPx(90),
+                dpToPx(40)
+            ).apply {
+                addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
+                addRule(RelativeLayout.CENTER_VERTICAL)
+                setMargins(0, 0, dpToPx(8), 0)
+            }
+            setOnClickListener { handleSend() }
+        }
+        inputBar.addView(sendButton)
 
         inputField = EditText(this).apply {
             hint = "Nefes AI ile konuşun..."
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
             maxLines = 4
             setBackgroundColor(Color.TRANSPARENT)
-            setTextColor(Color.parseColor("#1C2128"))
+            setTextColor(Color.parseColor("#2F3E46"))
             setHintTextColor(Color.parseColor("#64748B"))
-            textSize = 15f
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
-                gravity = Gravity.CENTER_VERTICAL
+            textSize = 14f
+            setPadding(dpToPx(16), 0, dpToPx(12), 0)
+            layoutParams = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT
+            ).apply {
+                addRule(RelativeLayout.LEFT_OF, sendButton.id)
+                addRule(RelativeLayout.ALIGN_PARENT_LEFT)
+                addRule(RelativeLayout.CENTER_VERTICAL)
             }
             imeOptions = EditorInfo.IME_ACTION_SEND
             setOnEditorActionListener { _, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_SEND) { handleSend(); true } else false
             }
         }
-
-        sendButton = Button(this, null, android.R.attr.borderlessButtonStyle).apply {
-            text = "GÖNDER"
-            setTextColor(Color.parseColor("#1E242B"))
-            typeface = android.graphics.Typeface.DEFAULT_BOLD
-            setOnClickListener { handleSend() }
-        }
         inputBar.addView(inputField)
-        inputBar.addView(sendButton)
         bottomContainer.addView(inputBar)
 
         disclaimerLabel = TextView(this).apply {
             text = "Nefes AI çevrimdışı çalışır, acil durumlarda öncelik 112'dedir."
             textSize = 11f
-            setTextColor(Color.parseColor("#2E4F42"))
+            setTextColor(Color.parseColor("#173531"))
             gravity = Gravity.CENTER
             setPadding(0, dpToPx(4), 0, dpToPx(8))
         }
         bottomContainer.addView(disclaimerLabel)
         root.addView(bottomContainer)
 
-        // 4. KATMAN: Sohbet Mesaj Listesi (RecyclerView)
         recyclerView = RecyclerView(this).apply {
             layoutManager = LinearLayoutManager(this@NefesAIChatActivity).apply {
                 stackFromEnd = true
             }
-            itemAnimator = null
             setPadding(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8))
             clipToPadding = false
             background = GradientDrawable().apply { setColor(Color.TRANSPARENT) }
@@ -444,88 +356,86 @@ class NefesAIChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun dpToPx(dp: Int): Int {
-        return (dp * resources.displayMetrics.density).toInt()
+    private fun dpToPx(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()
+    private fun TextView.setMarginsLeft(left: Int) {
+        val p = layoutParams as? ViewGroup.MarginLayoutParams
+        p?.setMargins(left, p.topMargin, p.rightMargin, p.bottomMargin)
     }
 }
 
 private class ChatAdapter(private val items: List<ChatMessage>) :
     RecyclerView.Adapter<ChatAdapter.ViewHolder>() {
 
-    class ViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView) {
-        init {
-            textView.textSize = 15f
-            val density = textView.context.resources.displayMetrics.density
-            val paddingHorizontal = (16 * density).toInt()
-            val paddingVertical = (12 * density).toInt()
-            textView.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical)
-
-            textView.background = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                cornerRadius = dpToPx(textView.context, 16).toFloat()
-            }
-
-            val layoutParams = ViewGroup.MarginLayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            layoutParams.setMargins(0, (6 * density).toInt(), 0, (6 * density).toInt())
-            textView.layoutParams = layoutParams
-        }
-
-        private fun dpToPx(context: Context, dp: Int): Int {
-            return (dp * context.resources.displayMetrics.density).toInt()
-        }
-    }
+    class ViewHolder(val container: LinearLayout, val avatarView: ImageView, val textView: TextView) :
+        RecyclerView.ViewHolder(container)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(TextView(parent.context))
+        val context = parent.context
+        val density = context.resources.displayMetrics.density
+
+        val container = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = ViewGroup.MarginLayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, (6 * density).toInt(), 0, (6 * density).toInt())
+            }
+        }
+
+        val avatar = ImageView(context).apply {
+            layoutParams = LinearLayout.LayoutParams((28 * density).toInt(), (28 * density).toInt()).apply {
+                setMargins(0, 0, (8 * density).toInt(), 0)
+            }
+            setImageResource(R.drawable.nefeslogo)
+        }
+
+        val text = TextView(context).apply {
+            textSize = 14f
+            maxLines = 100
+            val pHoriz = (14 * density).toInt()
+            val pVert = (10 * density).toInt()
+            setPadding(pHoriz, pVert, pHoriz, pVert)
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = (16 * density)
+            }
+        }
+
+        container.addView(avatar)
+        container.addView(text)
+
+        return ViewHolder(container, avatar, text)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val message = items[position]
-        val context = holder.textView.context
+        val context = holder.container.context
         val drawable = holder.textView.background as GradientDrawable
 
+        holder.textView.setTextColor(Color.parseColor("#2F3E46"))
+
         if (message.sender == "Siz") {
-            holder.textView.gravity = Gravity.END
-            holder.textView.setTextColor(Color.parseColor("#1C2128"))
-            drawable.setColor(Color.parseColor("#F4F2EB"))
+            holder.container.gravity = Gravity.END
+            holder.avatarView.visibility = View.GONE
+            drawable.setColor(Color.parseColor("#A3C1B8"))
             holder.textView.text = message.text
         } else {
-            holder.textView.gravity = Gravity.START
-            holder.textView.setTextColor(Color.parseColor("#1C2128"))
-            drawable.setColor(Color.parseColor("#F7F5EE"))
-
-            if (message.text == "...") {
-                holder.textView.text = "Nefes AI düşünüyor..."
-                holder.textView.setTextColor(Color.GRAY)
-            } else {
-                holder.textView.text = "${message.sender}: ${message.text}"
-            }
+            holder.container.gravity = Gravity.START
+            holder.avatarView.visibility = View.VISIBLE
+            drawable.setColor(Color.parseColor("#B4D1C6"))
+            holder.textView.text = message.text
+            holder.textView.setTextColor(Color.parseColor("#2F3E46"))
         }
 
         holder.textView.setOnClickListener {
-            if (message.text != "...") {
+            if (message.text != "Nefes AI düşünüyor...") {
                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 val clip = ClipData.newPlainText("NefesAiMessage", message.text)
                 clipboard.setPrimaryClip(clip)
                 Toast.makeText(context, "Kopyalandı", Toast.LENGTH_SHORT).show()
             }
-        }
-    }
-
-    fun fastUpdate(recyclerView: RecyclerView, position: Int) {
-        val holder = recyclerView.findViewHolderForAdapterPosition(position) as? ViewHolder
-        if (holder != null) {
-            val message = items[position]
-            if (message.sender != "Siz" && message.text != "...") {
-                holder.textView.text = "${message.sender}: ${message.text}"
-            } else {
-                holder.textView.text = message.text
-            }
-        } else {
-            notifyItemChanged(position)
         }
     }
 
